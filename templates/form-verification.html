@@ -1,0 +1,16 @@
+<div class="form-group">
+    <label for="number">Phone number</label>
+    <input type="text" class="form-control" id="number" name="mobile_number" ng-model="formData.mobile_number">
+</div>
+
+<div class="form-group">
+    <label for="country-code">Country Code</label>
+    <input type="text" class="form-control" id="country-code" name="country" ng-model="formData.country">
+</div>
+
+<div class="form-group row">
+    <div class="col-xs-6 col-xs-offset-3">
+        <div class="btn btn-block btn-info" ng-click="verificateData()">POST</div>
+            <a ui-sref="form.login"  Next Section> <span class="glyphicon glyphicon-circle-arrow-right"></span></a>
+    </div>
+</div>
