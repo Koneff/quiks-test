@@ -22,6 +22,18 @@ angular.module('quiksApp',['ngAnimate','ui.router','quiksApp.controllers'])
                     url: '/login',
                     templateUrl: 'templates/form-login.html',
                     controller: 'LoginCtrl'
+                })
+
+
+            .state('form.update',{
+                   url: '/update',
+                   templateUrl: 'templates/form-update.html',
+                   controller: 'UpdateCtrl'
+                   /*onEnter: ['$state','Auth',function($state,Auth){
+                        if(Auth.isLoggedIn()){
+                            $state.go('form.verification');
+                        }
+                    }]*/
                 });
 
             $urlRouterProvider.otherwise('/form/verification');

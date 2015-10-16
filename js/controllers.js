@@ -3,18 +3,6 @@ angular.module('quiksApp.controllers',['quiksApp.services'])
         '$scope',
         function($scope){
             $scope.formData = {};
-           //$scope.processForm = alert('awesome!!!')
-
-           /* $scope.verificateData = function(){
-                Verification.sendData($scope.domainInput.domain).then(function(successResponse){
-                    $scope.dataLoaded = true;
-                    $scope.siteInfo = successResponse.data;
-                    console.log(successResponse);
-                },function(failureResponse){
-                    $scope.dataLoaded = false;
-                    console.log(failureResponse);
-                });
-            }*/
         }
     ])
 
@@ -40,33 +28,46 @@ angular.module('quiksApp.controllers',['quiksApp.services'])
                         },function (failureResponse) {
                             console.log(failureResponse);
                         });
-                       // .error(function () {
-                         //   console.log('error')
-                        //});
             }
     }])
 
     .controller('LoginCtrl',[
         '$scope',
-        '$http',
-        function($scope,$http){
-            $scope.sendSMS = function() {
-                $scope.loginData = {};
-                loginData = {
-                    code: $scope.sms,
-                    mobile_number: $scope.formData.mobile_number
-                };
-                console.log(loginData);
-                $http({
-                    method: 'POST',
-                    url: 'http://rest.quiks.me/api/auth/login/',
-                    data: loginData
-                })
-                    .then(function (successResponse) {
+        'Auth',
+        function($scope,Auth){
+
+                $scope.submitLogin = function(){
+                    $scope.loginData = {
+                        code: $scope.code,
+                        mobile_number: $scope.formData.mobile_number
+                    };
+
+                    Auth.sendCode($scope.loginData).then(function(successResponse){
                         console.log(successResponse);
-                        console.log(successResponse.data.token);
-                    },function (failureResponse) {
-                        console.log(failureResponse);
-                    });
-            }
+                    },function(failureResponse){
+                        console.log(failureResponse)
+                    })
+
+                };
         }])
+
+
+    .controller('UpdateCtrl',[
+        '$scope',
+        'Contacts',
+        'Auth',
+        function($scope,Contacts,Auth){
+            $scope.isLoggedIn = Auth.isLoggedIn;
+            $scope.currentUser = Auth.currentUser;
+            $scope.logOut = Auth.logOut;
+            $scope.contacts = Contacts.contacts;
+
+            $scope.addContact = function(){
+                //if (!$scope.local_number||$scope.local_number===""){return;}
+                Contacts.create({
+                    name:$scope.name,
+                    local_number: $scope.local_number
+                });
+            }
+        }
+    ]);

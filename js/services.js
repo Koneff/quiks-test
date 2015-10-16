@@ -1,32 +1,83 @@
 angular.module('quiksApp.services',[])
-    .factory('Verification',[
-        '$http',
-        '$q',
-        function($http,$q){
-            var o = null;
-            return{
-                sendData: function (domain) {
-                    var deferred = $q.defer();
 
-                    var domainVal = String(domain);
+    .factory('Auth', ['$http','$q', '$window', function($http,$q, $window){
+        var auth = {};
+        var user ={};
 
-                    $http.get('http://rest.quiks.me/api/auth/verification/', {
-                        contentType: 'application/json',
-                        data: angular.toJson(o),
-                        cache: false
-                    })
+        auth.sendCode = function (loginData) {
+                var deferred = $q.defer();
 
-                        .then(function (successResponse) {
-                            //console.log('success', successResponse);
-                            deferred.resolve(successResponse);
-                            o = domain;
-                        }, function (failureResponse) {
-                            //console.log('error', failureResponse);
-                            deferred.reject(failureResponse);
-                        });
-                    return deferred.promise;
-                }
+                $http( {
+                    method: 'POST',
+                    url: 'http://rest.quiks.me/api/auth/login/',
+                    data: loginData
+                })
+                    .then(function (successResponse) {
+                        deferred.resolve(successResponse);
+                        auth.saveToken(successResponse.data.token);
+                        user = successResponse.data.user;
+                    }, function (failureResponse) {
+                        deferred.reject(failureResponse);
+                    });
+                return deferred.promise;
             };
 
-        }
-    ]);
+        auth.saveToken = function (token){
+            $window.localStorage['quiks-token'] = token;
+        };
+
+        auth.getToken = function (token){
+            return $window.localStorage['quiks-token'];
+        };
+
+        auth.isLoggedIn = function(){
+            var token = auth.getToken();
+            if(token){
+                return true;
+
+            } else {
+                return false
+            }
+        };
+
+        auth.currentUser = function(){
+            if(auth.isLoggedIn()) {
+                return user.username;
+            }
+        };
+
+        auth.logOut = function(){
+            return $window.localStorage.removeItem('quiks-token');
+        };
+        return auth;
+
+    }])
+
+    .factory('Contacts',['$http','$q','Auth',function($http,$q,Auth){
+        var o = {
+            contacts: []
+        };
+        o.create = function(contact) {
+            var deferred = $q.defer();
+            console.log(o.contacts);
+            return $http({
+                headers: {
+                    Authorization: 'Token '+Auth.getToken(),
+                    'Accept': 'application/json, text/javascript',
+                    'Content-Type': 'application/json; charset=utf-8'
+                },
+                method: 'POST',
+                url: 'http://rest.quiks.me/api/contacts/update/',
+                data: {"contacts" : o.contacts.push(contact)}
+            }).then(function(successResponse){
+
+                deferred.resolve(successResponse);
+
+
+            }, function(failureResponse){
+                deferred.reject(failureResponse);
+            });
+            return deferred.promise;
+        };
+        return o;
+    }]);
